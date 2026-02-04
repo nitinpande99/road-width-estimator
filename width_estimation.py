@@ -2,9 +2,8 @@
 Width Estimation Module
 Estimates road width using monocular vision and geometric assumptions.
 """
+from typing import Optional, Dict, Tuple, List
 
-import numpy as np
-from typing import List, Tuple, Optional
 
 
 def pixel_to_angular_width(
