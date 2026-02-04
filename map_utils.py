@@ -4,7 +4,6 @@ Map utilities for Road Width Estimator.
 Streamlit-safe:
 - No shapely
 - No native dependencies
-- Pure Python + math
 """
 
 from typing import List, Tuple
@@ -44,21 +43,35 @@ def get_confidence_style(conf: float) -> dict:
 
 
 # --------------------------------------------------
-# Corridor utilities (pure math fallback)
+# Corridor utilities
 # --------------------------------------------------
 
 def create_buffered_corridor(
     points: List[Tuple[float, float]],
     half_width_m: float
 ) -> List[Tuple[float, float]]:
-    """
-    Create a simple rectangular corridor approximation
-    around a polyline (lat, lon).
-    """
     if len(points) < 2:
         return points
 
-    buffered = []
-    scale = half_width_m / 111_000.0  # meters → degrees (approx)
+    buffered: List[Tuple[float, float]] = []
+    scale = half_width_m / 111_000.0  # meters → degrees approx
 
     for lat, lon in points:
+        buffered.append((lat + scale, lon + scale))
+        buffered.append((lat - scale, lon - scale))
+
+    return buffered
+
+
+def create_corridor_geojson(
+    points: List[Tuple[float, float]],
+    properties: dict | None = None
+) -> dict:
+    return {
+        "type": "Feature",
+        "geometry": {
+            "type": "LineString",
+            "coordinates": [[lon, lat] for lat, lon in points],
+        },
+        "properties": properties or {},
+    }
