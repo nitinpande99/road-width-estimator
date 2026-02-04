@@ -3,7 +3,7 @@ Video Processing Module
 Handles video frame extraction from equirectangular MP4 files.
 """
 
-import cv2
+import os
 import numpy as np
 from typing import Generator, Tuple, Optional
 import os
