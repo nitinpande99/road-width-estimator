@@ -1,7 +1,10 @@
 """
 Map utilities for Road Width Estimator.
 
-Streamlit-safe: no shapely, no native dependencies.
+Streamlit-safe:
+- No shapely
+- No native dependencies
+- Pure Python + math
 """
 
 from typing import List, Tuple
@@ -34,47 +37,28 @@ def get_confidence_color(conf: float) -> str:
 
 
 def get_confidence_style(conf: float) -> dict:
-    if conf < 0.5:
-        return {
-            "fillOpacity": 0.3,
-            "opacity": 0.5,
-            "dashArray": "5,5",
-        }
     return {
-        "fillOpacity": 0.6,
-        "opacity": 0.9,
-        "dashArray": None,
+        "weight": 4,
+        "opacity": max(0.3, min(1.0, conf)),
     }
 
 
 # --------------------------------------------------
-# Geometry helpers
+# Corridor utilities (pure math fallback)
 # --------------------------------------------------
-
-def _offset_point(
-    lat: float, lon: float, dx_m: float, dy_m: float
-) -> Tuple[float, float]:
-    """
-    Offset lat/lon by meters (approx).
-    """
-    dlat = dy_m / 111320.0
-    dlon = dx_m / (111320.0 * math.cos(math.radians(lat)))
-    return lat + dlat, lon + dlon
-
 
 def create_buffered_corridor(
     points: List[Tuple[float, float]],
-    widths: List[float],
-) -> List[List[Tuple[float, float]]]:
+    half_width_m: float
+) -> List[Tuple[float, float]]:
     """
-    Create corridor polygons as simple rectangles between points.
+    Create a simple rectangular corridor approximation
+    around a polyline (lat, lon).
     """
-    polygons = []
+    if len(points) < 2:
+        return points
 
-    for i in range(len(points) - 1):
-        lat1, lon1 = points[i]
-        lat2, lon2 = points[i + 1]
+    buffered = []
+    scale = half_width_m / 111_000.0  # meters → degrees (approx)
 
-        w = widths[i] / 2.0
-
-        dx = lon2 -
+    for lat, lon in points:
