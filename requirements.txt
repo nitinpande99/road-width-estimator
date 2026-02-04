@@ -1,7 +1,11 @@
+# Headless OpenCV only
 opencv-python-headless>=4.8.0
-opencv-python==0.0.0
-numpy>=1.24.0
+
+# Prevent normal OpenCV installation (ultralytics depends on it)
 ultralytics>=8.0.0
+
+# Standard dependencies
+numpy>=1.24.0
 streamlit>=1.28.0
 pandas>=2.0.0
 folium>=0.14.0
